@@ -1,10 +1,6 @@
 # fc-pos-go-leilao
 Terceiro lab pós go expert (leilão)
 
-## NOTA:
-  * Eu não consertei nenhum (mentira, só um) dos problemas já existentes no programa inicial disponibilizado, apenas adicionei a feature nova pedida.
-  * Por favor, não falhar o lab por problemas provenientes do projeto inicial (como a falta de uma rota pra criar user ou o filtro de status de auctions não funcionando na rota de get auction)
-
 ## Requerimentos
   * golang versão 1.22.3 ou superior
   * ou docker
