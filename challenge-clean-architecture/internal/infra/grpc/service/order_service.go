@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 
-	"challenge-cleanarch/internal/infra/grpc/pb"
-	"challenge-cleanarch/internal/usecase"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/infra/grpc/pb"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/usecase"
 )
 
 type OrderService struct {
@@ -38,21 +38,22 @@ func (s *OrderService) CreateOrder(ctx context.Context, in *pb.CreateOrderReques
 	}, nil
 }
 
-func (s *OrderService) ListOrders(ctx context.Context, in *pb.ListOrdersRequest) (*pb.ListOrdersResponse, error) {
-	output, err := s.ListOrdersUseCase.Execute()
+func (s *OrderService) ListOrders(ctx context.Context, _ *pb.EmptyMessageRequest) (*pb.OrderListResponse, error) {
+	orders, err := s.ListOrdersUseCase.Execute()
+
 	if err != nil {
 		return nil, err
 	}
-	orders := []*pb.OrdersResponse{}
-	for _, order := range output {
-		orders = append(orders, &pb.OrdersResponse{
+
+	var orderList pb.OrderListResponse
+	for _, order := range orders {
+		orderList.Orders = append(orderList.Orders, &pb.Order{
 			Id:         order.ID,
 			Price:      float32(order.Price),
 			Tax:        float32(order.Tax),
 			FinalPrice: float32(order.FinalPrice),
 		})
 	}
-	return &pb.ListOrdersResponse{
-		Orders: orders,
-	}, nil
+
+	return &orderList, nil
 }

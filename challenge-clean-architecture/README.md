@@ -1,128 +1,164 @@
-# Desafio Clean Architecture
+# Clean Architecture
 
-Agora é a hora de botar a mão na massa. Pra este desafio, você precisará criar o usecase de listagem das orders.
+  
 
-Esta listagem precisa ser feita com:
-- Endpoint REST (GET /order)
-- Service ListOrders com GRPC
-- Query ListOrders GraphQL
+## Sobre o projeto
 
-Não esqueça de criar as migrações necessárias e o arquivo api.http com a request para criar e listar as orders.
+  
 
+Desafio Clean Architecture do curso Pós Goexpert da faculdade FullCycle.
 
-### Execução
+  
 
-1. Clone o repositório e acesse a subpasta do desafio:
+## Funcionalidades
 
-   ```bash
-   git clone https://github.com/felipemnz/posgoerxpduty.git
-   cd posgoerxpduty/challenge-clean-architecture
-   ```
+  
 
-2. Instale as dependências:
+- O projeto possibilita ao usuário:
 
-   ```bash
-   go install github.com/ktr0731/evans@latest
-   go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
-   go mod tidy
-   ```
+  
+- Criar ordens e salvá-las no banco de dados;
+- Listar todas as ordens criadas;
 
-3. Copie as variáveis de ambiente:
+  
 
-   ```bash
-   cp .env.sample .env
-   ```
+## Como executar o projeto
 
-4. Execute o Mysql e RabbitMQ:
+  
 
-   ```bash
-   docker-compose up -d
-   ```
+### Pré-requisitos
 
-5. Execute as migrations:
+  
 
-   ```bash
-   migrate -path=internal/infra/database/migrations -database "mysql://root:root@tcp(localhost:3306)/orders" -verbose up
-   ```
+Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
 
-6. Execute os servidores:
+  
 
-   ```bash
-   go run cmd/ordersystem/wire_gen.go cmd/ordersystem/main.go
-   ```
+- [Git](https://git-scm.com)
 
-### Testando Endpoints
-## 1 - API REST
-Na pasta /api temos os arquivos para testes dos nossos endpoints REST na porta 8080.
-- create_order.http (POST /order para criar Orders)
-- list_orders.http  (GET /order para requisitar a lista de Orders)
+- [VSCode](https://code.visualstudio.com/)
 
-## 2 - GraphQL
-Em http://localhost:8082, podemos executar os comandos GraphQL.
+- [Rest Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client)
 
-Criando Orders:
-```sql
-mutation createOrder {
-  createOrder(input: {id: "hue", Price: 10.00, Tax: 1.00}), {
-    id
-    Price
-    Tax
-    FinalPrice
-  }
-}
+ - [Migrate](https://github.com/golang-migrate/migrate) 
+
+-  [Evans](https://github.com/ktr0731/evans) 
+
+#### Acessando o repositório
+
+  
+
+```bash
+
+# Clone este repositório
+
+$ git clone https://github.com/felipemnz/posgoerxpduty.git
+cd posgoerxpduty/challenge-clean-architecture
+
 ```
 
-Listando Orders:
-```sql
+  
+
+#### Rodando a aplicação
+
+  
+
+```bash
+
+# Abrir um terminal
+
+# 1 - Executar o comando
+
+$ docker-compose up -d
+
+#### Fazendo as requisição
+
+Serviços estarão disponíveis nas seguintes portas:
+
+- Web Server : 8000
+
+- gRPC: 50051
+
+- GraphQL: 8080
+  
+##### Web Server
+```bash
+# Abra a pasta API
+
+
+# Para criar uma order abra o arquivo create_order.http
+
+# Preencha os dados de id, price, tax
+
+# Clique em Send Request*
+
+
+# Para listar as ordens salvas abra o arquivo list_order.http
+
+# Clique em Send Request*
+
+```
+
+##### gRPC
+```bash
+
+# Abra um terminal
+
+# Na raiz do projeto
+
+$ evans -r repl
+
+# Caso package e service não tenham sido selecionados
+
+$ package pb
+
+$ service OrderService
+
+
+# Para criar uma ordem
+
+$ call CreateOrder 
+
+$ id (TYPE_STRING) => <digite um valor>
+$ price (TYPE_FLOAT) => <digite um valor> 
+$ tax (TYPE_FLOAT) => <digite um valor>
+
+
+# Para listar as ordens salvas no banco de dados
+
+$ call ListOrders
+
+```
+
+##### GraphQL
+```bash
+
+# Abra uma aba de seu navegor em
+
+$ http://localhost:8080
+
+
+# Para criar uma ordem (substitua os valores)
+
+mutation createOrder{
+    createOrder(input: {id: "xxxxxxx", Price: xxx.xx, Tax: x.x}) {
+        id
+        Price
+        Tax
+        FinalPrice
+    }
+}
+
+
+# Para listar as ordens salvas no banco de dados
+
 query listOrders {
-  listOrders {
-    id
-    Price
-    Tax
-    FinalPrice
-  }
+    listOrders {
+        id
+        Price
+        Tax
+        FinalPrice
+    }
 }
-```
 
-## 3 - gRPC
-Executando o cliente gRPC:
-```bash
-evans -r repl -p 8081
-```
-
-Conectando-se ao package pb:
-```bash
-package pb
-```
-
-Conectando-se ao Service de Orders:
-```bash
-service OrderService
-```
-
-Criando uma Order:
-```bash
-call CreateOrder
-```
-
-Listando as Orders:
-```bash
-call ListOrders
-```
-
-## 4 - Extra Commands
-Wire
-```bash
-wire ./cmd/ordersystem
-```
-
-GraphQL
-```bash
-go run github.com/99designs/gqlgen init
-go run github.com/99designs/gqlgen generate
-```
-
-Protofiles
-```bash
-protoc --go_out=. --go-grpc_out=. internal/infra/grpc/protofiles/order.proto
 ```

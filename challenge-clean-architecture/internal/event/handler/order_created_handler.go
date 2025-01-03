@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"sync"
 
-	"challenge-cleanarch/pkg/events"
-
+	"github.com/felipemnz/go-expert-challenge-cleanarch/pkg/events"
 	"github.com/streadway/amqp"
 )
 

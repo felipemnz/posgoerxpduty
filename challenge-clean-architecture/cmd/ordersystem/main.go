@@ -6,16 +6,15 @@ import (
 	"net"
 	"net/http"
 
-	"challenge-cleanarch/configs"
-	"challenge-cleanarch/internal/event/handler"
-	"challenge-cleanarch/internal/infra/graph"
-	"challenge-cleanarch/internal/infra/grpc/pb"
-	"challenge-cleanarch/internal/infra/grpc/service"
-	"challenge-cleanarch/internal/infra/web/webserver"
-	"challenge-cleanarch/pkg/events"
-
 	graphql_handler "github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/configs"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/event/handler"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/infra/graph"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/infra/grpc/pb"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/infra/grpc/service"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/infra/web/webserver"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/pkg/events"
 	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -48,19 +47,16 @@ func main() {
 
 	webserver := webserver.NewWebServer(configs.WebServerPort)
 	webOrderHandler := NewWebOrderHandler(db, eventDispatcher)
-	webListOrdersHandler := NewWebListOrdersHandler(db)
-
-	webserver.AddHandler("/order", webOrderHandler.Create, "POST")
-	webserver.AddHandler("/order", webListOrdersHandler.List, "GET")
+	webserver.AddHandler(webserver.NewHttpHandler("post", "/order", webOrderHandler.Create))
+	webserver.AddHandler(webserver.NewHttpHandler("get", "/orders", webOrderHandler.ListOrders))
 	fmt.Println("Starting web server on port", configs.WebServerPort)
 	go webserver.Start()
 
 	grpcServer := grpc.NewServer()
-	orderService := service.NewOrderService(*createOrderUseCase, *listOrdersUseCase)
-	pb.RegisterOrderServiceServer(grpcServer, orderService)
+	createOrderService := service.NewOrderService(*createOrderUseCase, *listOrdersUseCase)
+	pb.RegisterOrderServiceServer(grpcServer, createOrderService)
 	reflection.Register(grpcServer)
-
-	fmt.Println("Starting gRPC server on port", configs.GRPCServerPort)
+	fmt.Println("Starting gRPC server on port:", configs.GRPCServerPort)
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", configs.GRPCServerPort))
 	if err != nil {
 		panic(err)
@@ -74,12 +70,12 @@ func main() {
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)
 
-	fmt.Println("Starting GraphQL server on port", configs.GraphQLServerPort)
+	fmt.Println("Starting GraphQL server on port:", configs.GraphQLServerPort)
 	http.ListenAndServe(":"+configs.GraphQLServerPort, nil)
 }
 
 func getRabbitMQChannel() *amqp.Channel {
-	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	conn, err := amqp.Dial("amqp://guest:guest@rabbitmq:5672/")
 	if err != nil {
 		panic(err)
 	}

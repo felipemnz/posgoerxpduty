@@ -1,6 +1,6 @@
 package graph
 
-import "challenge-cleanarch/internal/usecase"
+import "github.com/felipemnz/go-expert-challenge-cleanarch/internal/usecase"
 
 // This file will not be regenerated automatically.
 //

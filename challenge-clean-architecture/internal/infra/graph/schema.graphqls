@@ -11,10 +11,10 @@ input OrderInput {
     Tax: Float!
 }
 
-type Mutation {
-    createOrder(input: OrderInput): Order
-}
-
 type Query {
     listOrders: [Order!]!
+}
+
+type Mutation {
+    createOrder(input: OrderInput): Order
 }

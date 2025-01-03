@@ -6,13 +6,12 @@ package main
 import (
 	"database/sql"
 
-	"challenge-cleanarch/internal/entity"
-	"challenge-cleanarch/internal/event"
-	"challenge-cleanarch/internal/infra/database"
-	"challenge-cleanarch/internal/infra/web"
-	"challenge-cleanarch/internal/usecase"
-	"challenge-cleanarch/pkg/events"
-
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/entity"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/event"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/infra/database"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/infra/web"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/usecase"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/pkg/events"
 	"github.com/google/wire"
 )
 
@@ -42,14 +41,6 @@ func NewCreateOrderUseCase(db *sql.DB, eventDispatcher events.EventDispatcherInt
 	return &usecase.CreateOrderUseCase{}
 }
 
-func NewListOrdersUseCase(db *sql.DB) *usecase.ListOrdersUseCase {
-	wire.Build(
-		setOrderRepositoryDependency,
-		usecase.NewListOrdersUseCase,
-	)
-	return &usecase.ListOrdersUseCase{}
-}
-
 func NewWebOrderHandler(db *sql.DB, eventDispatcher events.EventDispatcherInterface) *web.WebOrderHandler {
 	wire.Build(
 		setOrderRepositoryDependency,
@@ -59,10 +50,10 @@ func NewWebOrderHandler(db *sql.DB, eventDispatcher events.EventDispatcherInterf
 	return &web.WebOrderHandler{}
 }
 
-func NewWebListOrdersHandler(db *sql.DB) *web.WebListOrdersHandler {
+func NewListOrdersUseCase(db *sql.DB) *usecase.ListOrdersUseCase {
 	wire.Build(
 		setOrderRepositoryDependency,
-		web.NewWebListOrdersHandler,
+		usecase.NewListOrdersUseCase,
 	)
-	return &web.WebListOrdersHandler{}
+	return &usecase.ListOrdersUseCase{}
 }

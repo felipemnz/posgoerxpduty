@@ -4,17 +4,16 @@ import (
 	"database/sql"
 	"testing"
 
-	"challenge-cleanarch/internal/entity"
-
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/entity"
 	"github.com/stretchr/testify/suite"
 
-	// sqlite3
 	_ "github.com/mattn/go-sqlite3"
 )
 
 type OrderRepositoryTestSuite struct {
 	suite.Suite
-	Db *sql.DB
+	Db   *sql.DB
+	repo entity.OrderRepositoryInterface
 }
 
 func (suite *OrderRepositoryTestSuite) SetupSuite() {
@@ -22,9 +21,14 @@ func (suite *OrderRepositoryTestSuite) SetupSuite() {
 	suite.NoError(err)
 	db.Exec("CREATE TABLE orders (id varchar(255) NOT NULL, price float NOT NULL, tax float NOT NULL, final_price float NOT NULL, PRIMARY KEY (id))")
 	suite.Db = db
+	suite.repo = NewOrderRepository(suite.Db)
 }
 
-func (suite *OrderRepositoryTestSuite) TearDownTest() {
+func (suite *OrderRepositoryTestSuite) SetupTest() {
+	suite.Db.Exec("DELETE FROM orders;")
+}
+
+func (suite *OrderRepositoryTestSuite) TearDownSuite() {
 	suite.Db.Close()
 }
 
@@ -33,15 +37,10 @@ func TestSuite(t *testing.T) {
 }
 
 func (suite *OrderRepositoryTestSuite) TestGivenAnOrder_WhenSave_ThenShouldSaveOrder() {
-	order, err := entity.NewOrder("123", 10.0, 2.0)
-	suite.NoError(err)
-	suite.NoError(order.CalculateFinalPrice())
-	repo := NewOrderRepository(suite.Db)
-	err = repo.Save(order)
-	suite.NoError(err)
+	order := suite.persistOrder("123", 10.0, 5.0)
 
 	var orderResult entity.Order
-	err = suite.Db.QueryRow("SELECT id, price, tax, final_price FROM orders WHERE id = ?", order.ID).
+	err := suite.Db.QueryRow("Select id, price, tax, final_price from orders where id = ?", order.ID).
 		Scan(&orderResult.ID, &orderResult.Price, &orderResult.Tax, &orderResult.FinalPrice)
 
 	suite.NoError(err)
@@ -51,19 +50,25 @@ func (suite *OrderRepositoryTestSuite) TestGivenAnOrder_WhenSave_ThenShouldSaveO
 	suite.Equal(order.FinalPrice, orderResult.FinalPrice)
 }
 
-func (suite *OrderRepositoryTestSuite) TestGivenAnOrder_WhenList_ThenShouldListOrders() {
-	order, err := entity.NewOrder("123", 10.0, 2.0)
+func (suite *OrderRepositoryTestSuite) TestListOrder_whenHasRegisters() {
+	suite.persistOrder("456", 10.0, 5.0)
+	suite.persistOrder("789", 12.0, 7.0)
+	suite.persistOrder("101112", 14.0, 9.0)
+
+	orders, err := suite.repo.List()
+	suite.NoError(err)
+	suite.Equal(3, len(orders))
+	suite.Equal("456", orders[0].ID)
+	suite.Equal("789", orders[1].ID)
+	suite.Equal("101112", orders[2].ID)
+}
+
+func (suite *OrderRepositoryTestSuite) persistOrder(id string, price float64, tax float64) entity.Order {
+	order, err := entity.NewOrder(id, price, tax)
 	suite.NoError(err)
 	suite.NoError(order.CalculateFinalPrice())
-	repo := NewOrderRepository(suite.Db)
-	err = repo.Save(order)
+	err = suite.repo.Save(order)
 	suite.NoError(err)
 
-	orders, err := repo.List()
-	suite.NoError(err)
-	suite.Equal(1, len(orders))
-	suite.Equal(order.ID, orders[0].ID)
-	suite.Equal(order.Price, orders[0].Price)
-	suite.Equal(order.Tax, orders[0].Tax)
-	suite.Equal(order.FinalPrice, orders[0].FinalPrice)
+	return *order
 }

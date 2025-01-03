@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"challenge-cleanarch/internal/entity"
-	"challenge-cleanarch/pkg/events"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/internal/entity"
+	"github.com/felipemnz/go-expert-challenge-cleanarch/pkg/events"
 )
 
 type OrderInputDTO struct {
@@ -51,7 +51,7 @@ func (c *CreateOrderUseCase) Execute(input OrderInputDTO) (OrderOutputDTO, error
 		ID:         order.ID,
 		Price:      order.Price,
 		Tax:        order.Tax,
-		FinalPrice: order.Price + order.Tax,
+		FinalPrice: order.FinalPrice,
 	}
 
 	c.OrderCreated.SetPayload(dto)

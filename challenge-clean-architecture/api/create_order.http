@@ -1,10 +1,9 @@
-
-POST http://localhost:8080/order HTTP/1.1
-Host: localhost:8080
+POST http://localhost:8000/order HTTP/1.1
+Host: localhost:8000
 Content-Type: application/json
 
 {
-    "id":"aaa",
-    "price": 100.5,
+    "id":"aaaa",
+    "price": 112.5,
     "tax": 0.5
 }
