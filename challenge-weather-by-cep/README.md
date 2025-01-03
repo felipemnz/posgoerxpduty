@@ -80,11 +80,11 @@
 
    ```bash
    # invalid zip code
-   https://test-weather-by-cep-333597077502.us-central1.run.app/111
+   https://test-weather-by-cep-490185259293.us-central1.run.app/111
 
    # zip code not found
-   https://test-weather-by-cep-333597077502.us-central1.run.app/01153001
+   https://test-weather-by-cep-490185259293.us-central1.run.app/01153001
 
    # success
-   https://test-weather-by-cep-333597077502.us-central1.run.app/13450402
+   https://test-weather-by-cep-490185259293.us-central1.run.app/13450402
    ```
